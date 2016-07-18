@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+	<entry key="panelAll">Text for "le panel"</entry>
+	<entry key="panelFrOnly">FR only..</entry>
+</properties>
