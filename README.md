@@ -1,5 +1,4 @@
 # wicketmessages-maven-plugin
-Wicket message file generator
 
 This is a maven plugin which converts wicket's properties.xml files inti an excel file and back.
 
