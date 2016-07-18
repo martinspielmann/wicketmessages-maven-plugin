@@ -48,56 +48,48 @@ public class GenerateXlsMojo extends AbstractMojo {
     @Parameter(defaultValue = "${project.basedir}", property = "basedir", required = true)
     private String basedir;
 
-    
+
     private final Map<PathAndKey, Map<Locale, String>> localeProps = new HashMap<>();
-	public static final Locale DEFAULT_LOCALE = new Locale("default");
+    public static final Locale DEFAULT_LOCALE = new Locale("default");
 
-    
+
     private void addProps(Path file, Object key, Locale locale, Object value) {
-    	PathAndKey pathAndKey = new PathAndKey(file, key);
-    	localeProps.putIfAbsent(pathAndKey, new HashMap<>());
-    	Map<Locale, String> localeMap = localeProps.get(pathAndKey);
-    	String v = value==null?"":value.toString();
-    	System.out.println("put " + v + " with " + locale + " to " + localeMap);
-    	localeMap.putIfAbsent(locale, v);
-    	System.out.println("after put " + v + " with " + locale);
+        PathAndKey pathAndKey = new PathAndKey(file, key);
+        localeProps.putIfAbsent(pathAndKey, new HashMap<>());
+        Map<Locale, String> localeMap = localeProps.get(pathAndKey);
+        localeMap.putIfAbsent(locale, value == null ? "" : value.toString());
+    }
 
-	}
-    
     @Override
     public void execute() throws MojoExecutionException {
         List<Path> files = new ListWicketMessagesMojo().listFiles(basedir, fileExtension);
-        
-      //find default language files and aditional locales
-        
-        files.forEach(file->{
-        	String fileName = FilenameUtils.getBaseName(FilenameUtils.getBaseName(file.getFileName().toString()));
-        	int indexOfFirstUnderscore = fileName.indexOf('_');
 
-        	Properties properties = new Properties();
-        	try {
-    			properties.loadFromXML(Files.newInputStream(file));
-    		} catch (IOException e) {
-    			e.printStackTrace();
-    		}
-        	
-            System.out.println("props for " + file.toString());
+        //find default language files and aditional locales
 
-        	properties.forEach((k,v)->{
-        		if(-1==indexOfFirstUnderscore){
-            		//default file
-            		addProps(file, k, DEFAULT_LOCALE, v);
-            	}else{
-            		//other locale files
-            		String baseFileName = fileName.substring(0, indexOfFirstUnderscore);
-            		String localeName = fileName.substring(indexOfFirstUnderscore+1, fileName.length());
-            		addProps(Paths.get(file.getParent().toString(), baseFileName+fileExtension), k, new Locale(localeName), v);
-            	}
-        	});
+        files.forEach(file -> {
+            String fileName = FilenameUtils.getBaseName(FilenameUtils.getBaseName(file.getFileName().toString()));
+            int indexOfFirstUnderscore = fileName.indexOf('_');
+
+            Properties properties = new Properties();
+            try {
+                properties.loadFromXML(Files.newInputStream(file));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            properties.forEach((k, v) -> {
+                if (-1 == indexOfFirstUnderscore) {
+                    //default file
+                    addProps(file, k, DEFAULT_LOCALE, v);
+                } else {
+                    //other locale files
+                    String baseFileName = fileName.substring(0, indexOfFirstUnderscore);
+                    String localeName = fileName.substring(indexOfFirstUnderscore + 1, fileName.length());
+                    addProps(Paths.get(file.getParent().toString(), baseFileName + fileExtension), k, new Locale(localeName), v);
+                }
+            });
         });
 
-        System.out.println("start gen excel");
-        XlsWriter xlsWriter = new XlsWriter(localeProps);
-        xlsWriter.writeToFile();
+        new XlsWriter(localeProps).writeToFile();
     }
 }
