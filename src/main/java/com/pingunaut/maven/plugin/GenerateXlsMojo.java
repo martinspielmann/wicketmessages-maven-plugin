@@ -25,7 +25,6 @@ public class GenerateXlsMojo extends AbstractWicketMessagesMojo {
 
     private final Map<PathAndKey, Map<Locale, String>> localeProps = new HashMap<>();
 
-
     private void addProps(Path file, Object key, Locale locale, Object value) {
         PathAndKey pathAndKey = new PathAndKey(basePath().relativize(file), key);
         localeProps.putIfAbsent(pathAndKey, new HashMap<>());

@@ -29,9 +29,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
  */
 @Mojo(name = "generateXml", defaultPhase = LifecyclePhase.GENERATE_RESOURCES)
 public class GenerateXmlMojo extends AbstractWicketMessagesMojo {
-    /**
-     * Location of the file.
-     */
+
     @Parameter(defaultValue = "messages.xlsx", property = "messagesFile", required = true)
     private String messagesFile;
 
