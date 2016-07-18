@@ -15,9 +15,9 @@
 	</parent>
 
 	<scm>
-		<connection>scm:git:git@github.com/pingunaut/wicketmessages-maven-plugin.git</connection>
-		<developerConnection>scm:git:git@github.com/pingunaut/wicketmessages-maven-plugin.git</developerConnection>
-		<url>git@github.com/pingunaut/wicketmessages-maven-plugin.git</url>
+		<connection>scm:git:https://github.com/pingunaut/wicketmessages-maven-plugin.git</connection>
+		<developerConnection>scm:git:https://github.com/pingunaut/wicketmessages-maven-plugin.git</developerConnection>
+		<url>https://github.com/pingunaut/wicketmessages-maven-plugin.git</url>
 	</scm>
 	<licenses>
 		<license>
