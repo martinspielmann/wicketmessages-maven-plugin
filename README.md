@@ -26,7 +26,7 @@ lists all message files found in your maven project
 ```mvn com.pingunaut.maven.plugin:wicketmessages-maven-plugin:listFiles```
 
 ### generateXls
-merges all message files found in your maven project into one xml file
+merges all message files found in your maven project into one xlsx file
 #### parameters
 - *fileExtension* default: .properties.xml
 - *basedir* default: ${project.basedir}
@@ -34,7 +34,7 @@ merges all message files found in your maven project into one xml file
 ```mvn com.pingunaut.maven.plugin:wicketmessages-maven-plugin:generateXls```
 
 ### generateXml
-lists all message files found in your maven project
+reads translations out of an Excel file and writes them back into wicket's properties.xml files.
 #### parameters
 - *fileExtension* default: .properties.xml
 - *basedir* default: ${project.basedir} 
