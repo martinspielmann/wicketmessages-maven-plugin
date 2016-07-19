@@ -33,11 +33,9 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 @Mojo(name = "generateXml", defaultPhase = LifecyclePhase.GENERATE_RESOURCES)
 public class GenerateXmlMojo extends AbstractWicketMessagesMojo {
 
-	/** The messages file. */
-	@Parameter(defaultValue = "messages.xlsx", property = "messagesFile", required = true)
-	private String messagesFile;
+	@Parameter(defaultValue = "messages.xlsx", property = "inputFile", required = true)
+	private String inputFile;
 
-	/** The messages map. */
 	private final Map<PathAndLocale, Properties> messagesMap = new HashMap<>();
 
 	/*
@@ -49,7 +47,7 @@ public class GenerateXmlMojo extends AbstractWicketMessagesMojo {
 	public void execute() throws MojoExecutionException {
 		Workbook wb;
 		try {
-			wb = new XSSFWorkbook(Files.newInputStream(Paths.get(messagesFile)));
+			wb = new XSSFWorkbook(Files.newInputStream(Paths.get(inputFile)));
 			Sheet sheet = wb.getSheetAt(0);
 
 			Iterator<Row> rows = sheet.rowIterator();
