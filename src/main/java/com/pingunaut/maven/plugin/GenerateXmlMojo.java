@@ -24,9 +24,6 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-/**
- *
- */
 @Mojo(name = "generateXml", defaultPhase = LifecyclePhase.GENERATE_RESOURCES)
 public class GenerateXmlMojo extends AbstractWicketMessagesMojo {
 
@@ -51,11 +48,10 @@ public class GenerateXmlMojo extends AbstractWicketMessagesMojo {
                 Row row = rows.next();
                 String path = row.getCell(0).getStringCellValue();
                 String key = row.getCell(1).getStringCellValue();
-                for (int i = 2; i < locales.size() + 2; i++) {
-                    Cell cell = row.getCell(i);
+                for (int i = 0; i < locales.size(); i++) {
+                    Cell cell = row.getCell(i+2);
                     if (cell != null) {
-                        String value = cell.getStringCellValue();
-                        addMessage(path, locales.get(i - 2), key, value);
+                        addMessage(path, locales.get(i), key, cell.getStringCellValue());
                     }
                 }
             }

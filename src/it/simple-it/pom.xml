@@ -21,10 +21,10 @@
         <version>@project.version@</version>
         <executions>
           <execution>
-            <id>touch</id>
-            <phase>validate</phase>
+            <id>generateXls</id>
+            <phase>generate-resources</phase>
             <goals>
-              <goal>touch</goal>
+              <goal>generateXls</goal>
             </goals>
           </execution>
         </executions>

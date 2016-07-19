@@ -1,3 +1,2 @@
-File touchFile = new File( basedir, "target/touch.txt" );
-
-assert touchFile.isFile()
+File excelFile = new File( basedir, "messages.xlsx" );
+assert excelFile.isFile();
