@@ -17,8 +17,8 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -26,6 +26,9 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 @Mojo(name = "generateXls", defaultPhase = LifecyclePhase.GENERATE_RESOURCES)
 public class GenerateXlsMojo extends AbstractWicketMessagesMojo {
 
+	@Parameter(defaultValue = "messages.xlsx", property = "outputFile", required = true)
+    private String outputFile;
+	
 	private final Map<PathAndKey, Map<Locale, String>> localeProps = new HashMap<>();
 
 	@Override
@@ -108,7 +111,7 @@ public class GenerateXlsMojo extends AbstractWicketMessagesMojo {
 	}
 	
 	public void writeToFile(Workbook workbook) {
-        try (FileOutputStream fileOut = new FileOutputStream("messages.xlsx")) {
+        try (FileOutputStream fileOut = new FileOutputStream(outputFile)) {
             workbook.write(fileOut);
             fileOut.flush();
         } catch (IOException e) {
