@@ -23,14 +23,23 @@ import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+
+/**
+ * The Class GenerateXlsMojo.
+ * 
+ * @author martin spielmann
+ */
 @Mojo(name = "generateXls", defaultPhase = LifecyclePhase.GENERATE_RESOURCES)
 public class GenerateXlsMojo extends AbstractWicketMessagesMojo {
 
 	@Parameter(defaultValue = "messages.xlsx", property = "outputFile", required = true)
     private String outputFile;
 	
-	private final Map<PathAndKey, Map<Locale, String>> localeProps = new HashMap<>();
+	private final Map<PathAndKey, Map<Locale, String>> xlsData = new HashMap<>();
 
+	/* (non-Javadoc)
+	 * @see org.apache.maven.plugin.Mojo#execute()
+	 */
 	@Override
 	public void execute() throws MojoExecutionException {
 		List<Path> files = new ListWicketMessagesMojo().listFiles(basedir, fileExtension);
@@ -53,9 +62,15 @@ public class GenerateXlsMojo extends AbstractWicketMessagesMojo {
 			});
 		});
 
-		writeToFile(buildWorkbook(localeProps));
+		writeToFile(buildWorkbook(xlsData));
 	}
 
+	/**
+	 * Load properties.
+	 *
+	 * @param file the file
+	 * @return the properties
+	 */
 	private Properties loadProperties(Path file) {
 		Properties properties = new Properties();
 		try {
@@ -66,14 +81,28 @@ public class GenerateXlsMojo extends AbstractWicketMessagesMojo {
 		return properties;
 	}
 
+	/**
+	 * Adds the properties.
+	 *
+	 * @param file the file
+	 * @param key the key
+	 * @param locale the locale
+	 * @param value the value
+	 */
 	private void addProperties(Path file, Object key, Locale locale, Object value) {
 		PathAndKey pathAndKey = new PathAndKey(basePath().relativize(file), key);
-		localeProps.putIfAbsent(pathAndKey, new HashMap<>());
-		Map<Locale, String> localeMap = localeProps.get(pathAndKey);
+		xlsData.putIfAbsent(pathAndKey, new HashMap<>());
+		Map<Locale, String> localeMap = xlsData.get(pathAndKey);
 		localeMap.putIfAbsent(locale, value == null ? "" : value.toString());
 	}
 
-	private Workbook buildWorkbook(Map<PathAndKey, Map<Locale, String>> localeProps) {
+	/**
+	 * Builds the workbook.
+	 *
+	 * @param xlsData the locale props
+	 * @return the workbook
+	 */
+	private Workbook buildWorkbook(Map<PathAndKey, Map<Locale, String>> xlsData) {
 		int rowCounter = 0;
 
 		XSSFWorkbook workbook = new XSSFWorkbook();
@@ -81,7 +110,7 @@ public class GenerateXlsMojo extends AbstractWicketMessagesMojo {
 		XSSFRow currentRow = worksheet.createRow(rowCounter++);
 
 		int cellCounter = 0;
-		List<Locale> locales = findAllLocales(localeProps);
+		List<Locale> locales = findAllLocales(xlsData);
 
 		// create header
 		currentRow.createCell(cellCounter++).setCellValue("path");
@@ -91,7 +120,7 @@ public class GenerateXlsMojo extends AbstractWicketMessagesMojo {
 		}
 
 		//fill in values
-		for (Entry<PathAndKey, Map<Locale, String>> e : localeProps.entrySet()) {
+		for (Entry<PathAndKey, Map<Locale, String>> e : xlsData.entrySet()) {
 			currentRow = worksheet.createRow(rowCounter++);
 			cellCounter = 0;
 			currentRow.createCell(cellCounter++).setCellValue(e.getKey().getPath().toString());
@@ -105,11 +134,22 @@ public class GenerateXlsMojo extends AbstractWicketMessagesMojo {
 		return workbook;
 	}
 
-	private List<Locale> findAllLocales(Map<PathAndKey, Map<Locale, String>> localeProps) {
-		return localeProps.values().stream().flatMap(m -> m.keySet().stream()).distinct()
+	/**
+	 * Find all locales.
+	 *
+	 * @param xlsData the locale props
+	 * @return the list
+	 */
+	private List<Locale> findAllLocales(Map<PathAndKey, Map<Locale, String>> xlsData) {
+		return xlsData.values().stream().flatMap(m -> m.keySet().stream()).distinct()
 				.sorted((o1, o2) -> o1.toString().compareTo(o2.toString())).collect(Collectors.toList());
 	}
 	
+	/**
+	 * Write to file.
+	 *
+	 * @param workbook the workbook
+	 */
 	public void writeToFile(Workbook workbook) {
         try (FileOutputStream fileOut = new FileOutputStream(outputFile)) {
             workbook.write(fileOut);
