@@ -8,6 +8,7 @@ To address this problem we use this maven plugin which basically
  - scans sources for *.properties.xml files
  - merges them into an xlsx file with one column for every locale
  - reads updated xlsx and turns it into properties.xml files again
+ 
 With the Excel file, it's easy to sort and filter keys, spot missing translations, and it's also more comfortable to use for the business department.
 
 ## Usage
