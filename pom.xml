@@ -3,7 +3,7 @@
 
 	<groupId>com.pingunaut.maven.plugin</groupId>
 	<artifactId>wicketmessages-maven-plugin</artifactId>
-	<version>0.0.2</version>
+	<version>0.0.2-SNAPSHOT</version>
 	<packaging>maven-plugin</packaging>
 	<name>wicketmessages-maven-plugin</name>
 	<description>This is a maven plugin which converts wicket's properties.xml files into an excel file and back.</description>
