@@ -1,6 +1,7 @@
 package com.pingunaut.maven.plugin;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -12,7 +13,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.commons.codec.Charsets;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -36,8 +36,6 @@ public class GenerateXmlMojo extends AbstractWicketMessagesMojo {
 	@Parameter(defaultValue = "messages.xlsx", property = "inputFile", required = true)
 	private String inputFile;
 
-	private final Map<PathAndLocale, Properties> messagesMap = new HashMap<>();
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -45,6 +43,12 @@ public class GenerateXmlMojo extends AbstractWicketMessagesMojo {
 	 */
 	@Override
 	public void execute() throws MojoExecutionException {
+		Map<PathAndLocale, Properties> dataFromExcel = extractDataFromExcel(inputFile);
+		writeXml(dataFromExcel);
+	}
+
+	public Map<PathAndLocale, Properties> extractDataFromExcel(String inputFile) {
+		Map<PathAndLocale, Properties> map = new HashMap<>();
 		Workbook wb;
 		try {
 			wb = new XSSFWorkbook(Files.newInputStream(Paths.get(inputFile)));
@@ -62,15 +66,14 @@ public class GenerateXmlMojo extends AbstractWicketMessagesMojo {
 				for (int i = 0; i < locales.size(); i++) {
 					Cell cell = row.getCell(i + 2);
 					if (cell != null) {
-						addMessage(path, locales.get(i), key, cell.getStringCellValue());
+						addMessage(path, locales.get(i), key, cell.getStringCellValue(), map);
 					}
 				}
 			}
 		} catch (IOException e) {
 			getLog().error("Error reading excel file", e);
 		}
-
-		writeXml();
+		return map;
 	}
 
 	/**
@@ -85,7 +88,7 @@ public class GenerateXmlMojo extends AbstractWicketMessagesMojo {
 	 * @param value
 	 *            the value
 	 */
-	private void addMessage(String path, Locale locale, String key, String value) {
+	private void addMessage(String path, Locale locale, String key, String value, Map<PathAndLocale, Properties> map) {
 		Path filePath = buildFilePath(Paths.get(path), locale);
 		if (!Files.exists(filePath)) {
 			try {
@@ -96,8 +99,8 @@ public class GenerateXmlMojo extends AbstractWicketMessagesMojo {
 		}
 
 		PathAndLocale pathAndKey = new PathAndLocale(filePath, locale);
-		messagesMap.putIfAbsent(pathAndKey, new Properties());
-		Properties props = messagesMap.get(pathAndKey);
+		map.putIfAbsent(pathAndKey, new Properties());
+		Properties props = map.get(pathAndKey);
 		props.put(key, value);
 	}
 
@@ -142,11 +145,19 @@ public class GenerateXmlMojo extends AbstractWicketMessagesMojo {
 	/**
 	 * Write xml.
 	 */
-	public void writeXml() {
-		messagesMap.forEach((k, v) -> {
+	public void writeXml(Map<PathAndLocale, Properties> map) {
+		map.forEach((pal, props) -> {
 			try {
-				v.storeToXML(Files.newOutputStream(k.getPath()), "", Charsets.UTF_8.toString());
-				getLog().info(String.format("stored properties to %s", k.getPath().toString()));
+				if(append){
+					Properties existingProperties = new Properties();
+					existingProperties.load(Files.newInputStream(pal.getPath()));
+					existingProperties.putAll(props);
+					props.storeToXML(Files.newOutputStream(pal.getPath()), "", StandardCharsets.UTF_8.toString());
+				}else{
+					props.storeToXML(Files.newOutputStream(pal.getPath()), "", StandardCharsets.UTF_8.toString());
+
+				}
+				getLog().info(String.format("stored properties to %s", pal.getPath().toString()));
 
 			} catch (IOException e) {
 				getLog().error("error while storing properties to xml", e);

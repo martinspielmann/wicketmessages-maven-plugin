@@ -6,3 +6,4 @@
 /bin/
 /pom.xml.releaseBackup
 /release.properties
+/.apt_generated/
