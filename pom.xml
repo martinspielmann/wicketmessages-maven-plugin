@@ -1,10 +1,9 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.pingunaut.maven.plugin</groupId>
 	<artifactId>wicketmessages-maven-plugin</artifactId>
-	<version>0.0.3-SNAPSHOT</version>
+	<version>0.0.3</version>
 	<packaging>maven-plugin</packaging>
 	<name>wicketmessages-maven-plugin</name>
 	<description>This is a maven plugin which converts wicket's properties.xml files into an excel file and back.</description>
@@ -14,7 +13,8 @@
 		<connection>scm:git:https://github.com/pingunaut/wicketmessages-maven-plugin.git</connection>
 		<developerConnection>scm:git:https://github.com/pingunaut/wicketmessages-maven-plugin.git</developerConnection>
 		<url>https://github.com/pingunaut/wicketmessages-maven-plugin.git</url>
-	</scm>
+	  <tag>wicketmessages-maven-plugin-0.0.3</tag>
+  </scm>
 	<licenses>
 		<license>
 			<name>The Apache Software License, Version 2.0</name>
