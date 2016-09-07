@@ -9,7 +9,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 
 /**
  * The Class AbstractWicketMessagesMojo.
- * 
+ *
  * @author martin spielmann
  */
 public abstract class AbstractWicketMessagesMojo extends AbstractMojo {
@@ -19,12 +19,12 @@ public abstract class AbstractWicketMessagesMojo extends AbstractMojo {
 
     @Parameter(defaultValue = "${project.basedir}", property = "basedir", required = true)
     protected String basedir;
-    
+
     @Parameter(defaultValue = "false", property = "append", required = true)
     protected boolean append;
 
-    /** 
-     * The Constant DEFAULT_LOCALE is defined for wicket's default message files which do not have any locale identifier. 
+    /**
+     * The Constant DEFAULT_LOCALE is defined for wicket's default message files which do not have any locale identifier.
      */
     protected static final Locale DEFAULT_LOCALE = new Locale("default");
 

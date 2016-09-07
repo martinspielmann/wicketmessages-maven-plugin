@@ -26,142 +26,142 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 /**
  * The Class GenerateXmlMojo.
- * 
+ *
  * @author martin spielmann
- * 
+ *
  */
 @Mojo(name = "generateXml", defaultPhase = LifecyclePhase.GENERATE_RESOURCES)
 public class GenerateXmlMojo extends AbstractWicketMessagesMojo {
 
-	@Parameter(defaultValue = "messages.xlsx", property = "inputFile", required = true)
-	private String inputFile;
+    @Parameter(defaultValue = "messages.xlsx", property = "inputFile", required = true)
+    private String inputFile;
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.apache.maven.plugin.Mojo#execute()
-	 */
-	@Override
-	public void execute() throws MojoExecutionException {
-		Map<PathAndLocale, Properties> dataFromExcel = extractDataFromExcel(inputFile);
-		writeXml(dataFromExcel);
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see org.apache.maven.plugin.Mojo#execute()
+     */
+    @Override
+    public void execute() throws MojoExecutionException {
+        Map<PathAndLocale, Properties> dataFromExcel = extractDataFromExcel(inputFile);
+        writeXml(dataFromExcel);
+    }
 
-	public Map<PathAndLocale, Properties> extractDataFromExcel(String inputFile) {
-		Map<PathAndLocale, Properties> map = new HashMap<>();
-		Workbook wb;
-		try {
-			wb = new XSSFWorkbook(Files.newInputStream(Paths.get(inputFile)));
-			Sheet sheet = wb.getSheetAt(0);
+    public Map<PathAndLocale, Properties> extractDataFromExcel(final String inputFile) {
+        Map<PathAndLocale, Properties> map = new HashMap<>();
+        Workbook wb;
+        try {
+            wb = new XSSFWorkbook(Files.newInputStream(Paths.get(inputFile)));
+            Sheet sheet = wb.getSheetAt(0);
 
-			Iterator<Row> rows = sheet.rowIterator();
-			// get locales
-			List<Locale> locales = getLocales(rows.next().cellIterator());
+            Iterator<Row> rows = sheet.rowIterator();
+            // get locales
+            List<Locale> locales = getLocales(rows.next().cellIterator());
 
-			//
-			while (rows.hasNext()) {
-				Row row = rows.next();
-				String path = row.getCell(0).getStringCellValue();
-				String key = row.getCell(1).getStringCellValue();
-				for (int i = 0; i < locales.size(); i++) {
-					Cell cell = row.getCell(i + 2);
-					if (cell != null) {
-						addMessage(path, locales.get(i), key, cell.getStringCellValue(), map);
-					}
-				}
-			}
-		} catch (IOException e) {
-			getLog().error("Error reading excel file", e);
-		}
-		return map;
-	}
+            //
+            while (rows.hasNext()) {
+                Row row = rows.next();
+                String path = row.getCell(0).getStringCellValue();
+                String key = row.getCell(1).getStringCellValue();
+                for (int i = 0; i < locales.size(); i++) {
+                    Cell cell = row.getCell(i + 2);
+                    if (cell != null) {
+                        addMessage(path, locales.get(i), key, cell.getStringCellValue(), map);
+                    }
+                }
+            }
+        } catch (IOException e) {
+            getLog().error("Error reading excel file", e);
+        }
+        return map;
+    }
 
-	/**
-	 * Adds the message.
-	 *
-	 * @param path
-	 *            the path
-	 * @param locale
-	 *            the locale
-	 * @param key
-	 *            the key
-	 * @param value
-	 *            the value
-	 */
-	private void addMessage(String path, Locale locale, String key, String value, Map<PathAndLocale, Properties> map) {
-		Path filePath = buildFilePath(Paths.get(path), locale);
-		if (!Files.exists(filePath)) {
-			try {
-				Files.createFile(filePath);
-			} catch (IOException e) {
-				getLog().error("Error creating xml file", e);
-			}
-		}
+    /**
+     * Adds the message.
+     *
+     * @param path
+     *            the path
+     * @param locale
+     *            the locale
+     * @param key
+     *            the key
+     * @param value
+     *            the value
+     */
+    private void addMessage(final String path, final Locale locale, final String key, final String value, final Map<PathAndLocale, Properties> map) {
+        Path filePath = buildFilePath(Paths.get(path), locale);
+        if (!Files.exists(filePath)) {
+            try {
+                Files.createFile(filePath);
+            } catch (IOException e) {
+                getLog().error("Error creating xml file", e);
+            }
+        }
 
-		PathAndLocale pathAndKey = new PathAndLocale(filePath, locale);
-		map.putIfAbsent(pathAndKey, new Properties());
-		Properties props = map.get(pathAndKey);
-		props.put(key, value);
-	}
+        PathAndLocale pathAndKey = new PathAndLocale(filePath, locale);
+        map.putIfAbsent(pathAndKey, new Properties());
+        Properties props = map.get(pathAndKey);
+        props.put(key, value);
+    }
 
-	/**
-	 * Builds the file path.
-	 *
-	 * @param path
-	 *            the path
-	 * @param locale
-	 *            the locale
-	 * @return the path
-	 */
-	private Path buildFilePath(Path path, Locale locale) {
-		// default messages file
-		if (DEFAULT_LOCALE.equals(locale)) {
-			return path;
-		} else {
-			String fileName = FilenameUtils.getBaseName(FilenameUtils.getBaseName(path.getFileName().toString()));
-			return Paths.get(path.getParent().toString(),
-					String.format("%s_%s%s", fileName, locale.toString(), fileExtension));
-		}
-	}
+    /**
+     * Builds the file path.
+     *
+     * @param path
+     *            the path
+     * @param locale
+     *            the locale
+     * @return the path
+     */
+    private Path buildFilePath(final Path path, final Locale locale) {
+        // default messages file
+        if (DEFAULT_LOCALE.equals(locale)) {
+            return path;
+        } else {
+            String fileName = FilenameUtils.getBaseName(FilenameUtils.getBaseName(path.getFileName().toString()));
+            return Paths.get(path.getParent().toString(),
+                    String.format("%s_%s%s", fileName, locale.toString(), fileExtension));
+        }
+    }
 
-	/**
-	 * Gets the locales.
-	 *
-	 * @param cells
-	 *            the cells
-	 * @return the locales
-	 */
-	private List<Locale> getLocales(Iterator<Cell> cells) {
-		List<Locale> locales = new ArrayList<>();
-		// ignore path and key column
-		cells.next();
-		cells.next();
-		while (cells.hasNext()) {
-			locales.add(new Locale(cells.next().getStringCellValue()));
-		}
-		return locales;
-	}
+    /**
+     * Gets the locales.
+     *
+     * @param cells
+     *            the cells
+     * @return the locales
+     */
+    private List<Locale> getLocales(final Iterator<Cell> cells) {
+        List<Locale> locales = new ArrayList<>();
+        // ignore path and key column
+        cells.next();
+        cells.next();
+        while (cells.hasNext()) {
+            locales.add(new Locale(cells.next().getStringCellValue()));
+        }
+        return locales;
+    }
 
-	/**
-	 * Write xml.
-	 */
-	public void writeXml(Map<PathAndLocale, Properties> map) {
-		map.forEach((pal, props) -> {
-			try {
-				if(append){
-					Properties existingProperties = new Properties();
-					existingProperties.load(Files.newInputStream(pal.getPath()));
-					existingProperties.putAll(props);
-					props.storeToXML(Files.newOutputStream(pal.getPath()), "", StandardCharsets.UTF_8.toString());
-				}else{
-					props.storeToXML(Files.newOutputStream(pal.getPath()), "", StandardCharsets.UTF_8.toString());
+    /**
+     * Write xml.
+     */
+    public void writeXml(final Map<PathAndLocale, Properties> map) {
+        map.forEach((pal, props) -> {
+            try {
+                if(append){
+                    Properties existingProperties = new Properties();
+                    existingProperties.load(Files.newInputStream(pal.getPath()));
+                    existingProperties.putAll(props);
+                    props.storeToXML(Files.newOutputStream(pal.getPath()), "", StandardCharsets.UTF_8.toString());
+                }else{
+                    props.storeToXML(Files.newOutputStream(pal.getPath()), "", StandardCharsets.UTF_8.toString());
 
-				}
-				getLog().info(String.format("stored properties to %s", pal.getPath().toString()));
+                }
+                getLog().info(String.format("stored properties to %s", pal.getPath().toString()));
 
-			} catch (IOException e) {
-				getLog().error("error while storing properties to xml", e);
-			}
-		});
-	}
+            } catch (IOException e) {
+                getLog().error("error while storing properties to xml", e);
+            }
+        });
+    }
 }

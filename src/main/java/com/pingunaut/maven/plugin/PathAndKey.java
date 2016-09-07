@@ -10,7 +10,7 @@ public class PathAndKey implements Comparable<PathAndKey> {
     private final Path path;
     private final Object key;
 
-    public PathAndKey(Path path, Object key) {
+    public PathAndKey(final Path path, final Object key) {
         this.path = path;
         this.key = key;
     }
@@ -29,12 +29,12 @@ public class PathAndKey implements Comparable<PathAndKey> {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         return EqualsBuilder.reflectionEquals(this, obj);
     }
 
     @Override
-    public int compareTo(PathAndKey o) {
+    public int compareTo(final PathAndKey o) {
         return CompareToBuilder.reflectionCompare(this, o);
     }
 }

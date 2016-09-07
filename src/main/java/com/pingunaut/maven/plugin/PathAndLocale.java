@@ -11,7 +11,7 @@ public class PathAndLocale implements Comparable<PathAndLocale> {
     private final Path path;
     private final Locale locale;
 
-    public PathAndLocale(Path path, Locale locale) {
+    public PathAndLocale(final Path path, final Locale locale) {
         this.path = path;
         this.locale = locale;
     }
@@ -30,12 +30,12 @@ public class PathAndLocale implements Comparable<PathAndLocale> {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         return EqualsBuilder.reflectionEquals(this, obj);
     }
 
     @Override
-    public int compareTo(PathAndLocale o) {
+    public int compareTo(final PathAndLocale o) {
         return CompareToBuilder.reflectionCompare(this, o);
     }
 }
