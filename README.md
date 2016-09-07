@@ -30,6 +30,7 @@ merges all message files found in your maven project into one xlsx file ([PROJEC
 #### parameters
 - *fileExtension* default: .properties.xml
 - *basedir* default: ${project.basedir}
+- *append* default: false
 - *outputFile* default: messages.xlsx
 
 ```mvn com.pingunaut.maven.plugin:wicketmessages-maven-plugin:generateXls```
@@ -38,7 +39,8 @@ merges all message files found in your maven project into one xlsx file ([PROJEC
 reads translations out of an excel file and writes them back into wicket's properties.xml files.
 #### parameters
 - *fileExtension* default: .properties.xml
-- *basedir* default: ${project.basedir} 
+- *basedir* default: ${project.basedir}
+- *append* default: false
 - *inputFile* default: messages.xlsx // the excel file to read messages from
 
 
