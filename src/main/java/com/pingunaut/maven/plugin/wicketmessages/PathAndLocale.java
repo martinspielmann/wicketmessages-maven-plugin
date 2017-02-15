@@ -1,4 +1,4 @@
-package com.pingunaut.maven.plugin;
+package com.pingunaut.maven.plugin.wicketmessages;
 
 import java.nio.file.Path;
 import java.util.Locale;

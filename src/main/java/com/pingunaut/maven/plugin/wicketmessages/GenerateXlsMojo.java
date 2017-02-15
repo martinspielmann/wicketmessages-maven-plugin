@@ -1,4 +1,4 @@
-package com.pingunaut.maven.plugin;
+package com.pingunaut.maven.plugin.wicketmessages;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
