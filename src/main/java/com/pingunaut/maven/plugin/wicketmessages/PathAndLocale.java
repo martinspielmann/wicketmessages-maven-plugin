@@ -7,35 +7,87 @@ import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
+/**
+ * The Class PathAndLocale is a container to be used as a key for translations.
+ * 
+ * @author Martin Spielmann
+ */
 public class PathAndLocale implements Comparable<PathAndLocale> {
-    private final Path path;
-    private final Locale locale;
+	
+	private final Path path;
+	private final Locale locale;
 
-    public PathAndLocale(final Path path, final Locale locale) {
-        this.path = path;
-        this.locale = locale;
-    }
+	/**
+	 * Instantiates a new path and locale.
+	 *
+	 * @param path the path
+	 * @param locale the locale
+	 */
+	public PathAndLocale(final Path path, final Locale locale) {
+		this.path = path;
+		this.locale = locale;
+	}
 
-    public Path getPath() {
-        return path;
-    }
+	/**
+	 * Gets the path.
+	 *
+	 * @return the path
+	 */
+	public Path getPath() {
+		return path;
+	}
 
-    public Object getLocale() {
-        return locale;
-    }
+	/**
+	 * Gets the locale.
+	 *
+	 * @return the locale
+	 */
+	public Object getLocale() {
+		return locale;
+	}
 
-    @Override
-    public int hashCode() {
-        return HashCodeBuilder.reflectionHashCode(this);
-    }
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((locale == null) ? 0 : locale.hashCode());
+		result = prime * result + ((path == null) ? 0 : path.hashCode());
+		return result;
+	}
 
-    @Override
-    public boolean equals(final Object obj) {
-        return EqualsBuilder.reflectionEquals(this, obj);
-    }
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		PathAndLocale other = (PathAndLocale) obj;
+		if (locale == null) {
+			if (other.locale != null)
+				return false;
+		} else if (!locale.equals(other.locale))
+			return false;
+		if (path == null) {
+			if (other.path != null)
+				return false;
+		} else if (!path.equals(other.path))
+			return false;
+		return true;
+	}
 
-    @Override
-    public int compareTo(final PathAndLocale o) {
-        return CompareToBuilder.reflectionCompare(this, o);
-    }
+	/* (non-Javadoc)
+	 * @see java.lang.Comparable#compareTo(java.lang.Object)
+	 */
+	@Override
+	public int compareTo(final PathAndLocale o) {
+		return CompareToBuilder.reflectionCompare(this, o);
+	}
 }

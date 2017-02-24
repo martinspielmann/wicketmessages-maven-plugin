@@ -31,13 +31,14 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 /**
- * The Class GenerateXlsMojo.
+ * The Class GenerateXlsMojo generates an excel file from wicket messages properties files.
  *
- * @author martin spielmann
+ * @author Martin Spielmann
  */
 @Mojo(name = "generateXls", defaultPhase = LifecyclePhase.GENERATE_RESOURCES)
 public class GenerateXlsMojo extends AbstractWicketMessagesMojo {
 
+    /** The output file. */
     @Parameter(defaultValue = "messages.xlsx", property = "outputFile", required = true)
     private String outputFile;
 
@@ -94,14 +95,11 @@ public class GenerateXlsMojo extends AbstractWicketMessagesMojo {
     /**
      * Adds the properties.
      *
-     * @param file
-     *            the file
-     * @param key
-     *            the key
-     * @param locale
-     *            the locale
-     * @param value
-     *            the value
+     * @param file            the file
+     * @param key            the key
+     * @param locale            the locale
+     * @param value            the value
+     * @param map the map
      */
     private void addProperties(final Path file, final Object key, final Locale locale, final Object value,
             final Map<PathAndKey, Map<Locale, String>> map) {
@@ -171,6 +169,13 @@ public class GenerateXlsMojo extends AbstractWicketMessagesMojo {
         }
     }
 
+    /**
+     * Update workbook.
+     *
+     * @param map the map
+     * @return the workbook
+     * @throws MojoFailureException the mojo failure exception
+     */
     private Workbook updateWorkbook(final Map<PathAndKey, Map<Locale, String>> map) throws MojoFailureException {
         Workbook wb = null;
         try {
@@ -202,6 +207,13 @@ public class GenerateXlsMojo extends AbstractWicketMessagesMojo {
         return wb;
     }
 
+    /**
+     * Fill new row.
+     *
+     * @param newRow the new row
+     * @param entry the entry
+     * @param locales the locales
+     */
     private void fillNewRow(final Row newRow, final Entry<PathAndKey, Map<Locale, String>> entry, final List<Locale> locales) {
         int cellCounter = 0;
         newRow.createCell(cellCounter++).setCellValue(entry.getKey().getPath().toString());
@@ -212,6 +224,13 @@ public class GenerateXlsMojo extends AbstractWicketMessagesMojo {
         }
     }
 
+    /**
+     * Check locales from data.
+     *
+     * @param sheet the sheet
+     * @param locales the locales
+     * @throws MojoFailureException the mojo failure exception
+     */
     private void checkLocalesFromData(final Sheet sheet, final List<Locale> locales) throws MojoFailureException {
         List<Locale> existingLocales = new ArrayList<>();
         Iterator<Cell> cells = sheet.getRow(0).cellIterator();
@@ -229,6 +248,13 @@ public class GenerateXlsMojo extends AbstractWicketMessagesMojo {
         }
     }
 
+    /**
+     * Find row.
+     *
+     * @param sheet the sheet
+     * @param pac the pac
+     * @return the row
+     */
     public static Row findRow(final Sheet sheet, final PathAndKey pac) {
         for (Row row : sheet) {
             if (row.getCell(0).getStringCellValue().equals(pac.getPath().toString())
@@ -239,6 +265,11 @@ public class GenerateXlsMojo extends AbstractWicketMessagesMojo {
         return null;
     }
 
+    /**
+     * Skip path and key col.
+     *
+     * @param cells the cells
+     */
     private void skipPathAndKeyCol(final Iterator<Cell> cells) {
         cells.next();
         cells.next();
