@@ -2,6 +2,7 @@ package com.pingunaut.maven.plugin.wicketmessages;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -16,6 +17,7 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -95,18 +97,45 @@ public class GenerateXlsMojo extends AbstractWicketMessagesMojo {
     /**
      * Adds the properties.
      *
-     * @param file            the file
-     * @param key            the key
-     * @param locale            the locale
-     * @param value            the value
+     * @param file the file
+     * @param key the key
+     * @param locale the locale
+     * @param value the value
      * @param map the map
      */
     private void addProperties(final Path file, final Object key, final Locale locale, final Object value,
             final Map<PathAndKey, Map<Locale, String>> map) {
-        PathAndKey pathAndKey = new PathAndKey(basePath().relativize(file), key);
+        PathAndKey pathAndKey = new PathAndKey(basePath().relativize(file), key, isUsed(key));
         map.putIfAbsent(pathAndKey, new HashMap<>());
         Map<Locale, String> localeMap = map.get(pathAndKey);
         localeMap.putIfAbsent(locale, value == null ? "" : value.toString());
+    }
+
+    private boolean isUsed(final Object key) {
+        //set found usages to 1 by default. this way the result will be true if an error occurs.
+        long usageFound = 1;
+        try {
+            Path targetPath = Paths.get(basedir, "target");
+            usageFound = Files.find(Paths.get(basedir), Integer.MAX_VALUE, (filePath, fileAttr) -> {
+                // check if is regular file (no folder, link, ...)
+                return fileAttr.isRegularFile()
+                        // list all, but the ones that end with your defined extension
+                        && !filePath.toString().endsWith(fileExtension)
+                // check if not in target folder (files should be placed somewhere in src)
+                        && !filePath.startsWith(targetPath);
+            }).filter(p -> {
+                try {
+                    return FileUtils.readFileToString(p.toFile(), StandardCharsets.UTF_8).contains((String) key);
+                } catch (IOException e) {
+                    getLog().error("Error while reading source file", e);
+                }
+                return append;
+            }).count();
+        } catch (IOException e) {
+            getLog().error("Error while listing source files", e);
+        }
+
+        return usageFound > 0;
     }
 
     /**
@@ -129,9 +158,12 @@ public class GenerateXlsMojo extends AbstractWicketMessagesMojo {
         // create header
         currentRow.createCell(cellCounter++).setCellValue("path");
         currentRow.createCell(cellCounter++).setCellValue("key");
+        currentRow.createCell(cellCounter++).setCellValue("used");
+
         for (Locale locale : locales) {
             currentRow.createCell(cellCounter++).setCellValue(locale.toString());
         }
+
 
         // fill in values
         for (Entry<PathAndKey, Map<Locale, String>> e : map.entrySet()) {
@@ -165,7 +197,7 @@ public class GenerateXlsMojo extends AbstractWicketMessagesMojo {
             workbook.write(fileOut);
             fileOut.flush();
         } catch (IOException e) {
-            e.printStackTrace();
+            getLog().error("Error while writing Excel file", e);
         }
     }
 
@@ -189,7 +221,7 @@ public class GenerateXlsMojo extends AbstractWicketMessagesMojo {
                 // check if path & key already existing within excel
                 Row existingRow = findRow(sheet, e.getKey());
                 if (existingRow != null) {
-                    int cellCounter = 2;
+                    int cellCounter = 3;
                     for (Locale locale : locales) {
                         existingRow.createCell(cellCounter).setCellValue(e.getValue().get(locale));
                         cellCounter++;
@@ -218,10 +250,13 @@ public class GenerateXlsMojo extends AbstractWicketMessagesMojo {
         int cellCounter = 0;
         newRow.createCell(cellCounter++).setCellValue(entry.getKey().getPath().toString());
         newRow.createCell(cellCounter++).setCellValue(entry.getKey().getKey().toString());
+        newRow.createCell(cellCounter++).setCellValue(entry.getKey().isUsed());
 
         for (Locale locale : locales) {
             newRow.createCell(cellCounter++).setCellValue(entry.getValue().get(locale));
         }
+
+
     }
 
     /**
@@ -244,7 +279,7 @@ public class GenerateXlsMojo extends AbstractWicketMessagesMojo {
                     "Existing Excel file does not contain the same locales like the provided properties. \n"
                             + "Please update your Excel file accordingly before you proceed. \n"
                             + "Locales in Excel: %s \n" + "Locales in properties: %s \n",
-                            Arrays.toString(existingLocales.toArray()), Arrays.toString(locales.toArray())));
+                    Arrays.toString(existingLocales.toArray()), Arrays.toString(locales.toArray())));
         }
     }
 
@@ -271,6 +306,7 @@ public class GenerateXlsMojo extends AbstractWicketMessagesMojo {
      * @param cells the cells
      */
     private void skipPathAndKeyCol(final Iterator<Cell> cells) {
+        cells.next();
         cells.next();
         cells.next();
     }
