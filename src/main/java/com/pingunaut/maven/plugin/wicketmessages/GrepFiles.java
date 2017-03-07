@@ -9,7 +9,6 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.function.BiPredicate;
 
 import org.apache.maven.plugin.logging.Log;
-import org.apache.maven.plugin.logging.SystemStreamLog;
 
 public class GrepFiles {
 
