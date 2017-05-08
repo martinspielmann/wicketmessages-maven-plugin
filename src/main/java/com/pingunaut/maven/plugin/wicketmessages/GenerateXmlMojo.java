@@ -164,11 +164,11 @@ public class GenerateXmlMojo extends AbstractWicketMessagesMojo {
         map.forEach((pal, props) -> {
             try {
                 if (append) {
-                    getLog().info("Append to existing files");
+                    getLog().info("Append to existing file");
                     final Properties existingProperties = new Properties();
-                    existingProperties.load(Files.newInputStream(pal.getPath()));
+                    existingProperties.loadFromXML(Files.newInputStream(pal.getPath()));
                     existingProperties.putAll(props);
-                    props.storeToXML(Files.newOutputStream(pal.getPath()), "", StandardCharsets.UTF_8.toString());
+                    existingProperties.storeToXML(Files.newOutputStream(pal.getPath()), "", StandardCharsets.UTF_8.toString());
                 } else {
                     props.storeToXML(Files.newOutputStream(pal.getPath()), "", StandardCharsets.UTF_8.toString());
 
