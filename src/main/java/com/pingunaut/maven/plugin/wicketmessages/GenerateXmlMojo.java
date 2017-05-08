@@ -44,7 +44,7 @@ public class GenerateXmlMojo extends AbstractWicketMessagesMojo {
      */
     @Override
     public void execute() throws MojoExecutionException {
-        Map<PathAndLocale, Properties> dataFromExcel = extractDataFromExcel(inputFile);
+        final Map<PathAndLocale, Properties> dataFromExcel = extractDataFromExcel(inputFile);
         writeXml(dataFromExcel);
     }
 
@@ -56,29 +56,29 @@ public class GenerateXmlMojo extends AbstractWicketMessagesMojo {
      * @return the map
      */
     public Map<PathAndLocale, Properties> extractDataFromExcel(final String inputFile) {
-        Map<PathAndLocale, Properties> map = new HashMap<>();
+        final Map<PathAndLocale, Properties> map = new HashMap<>();
         Workbook wb;
         try {
             wb = new XSSFWorkbook(Files.newInputStream(Paths.get(inputFile)));
-            Sheet sheet = wb.getSheetAt(0);
+            final Sheet sheet = wb.getSheetAt(0);
 
-            Iterator<Row> rows = sheet.rowIterator();
+            final Iterator<Row> rows = sheet.rowIterator();
             // get locales
-            List<Locale> locales = getLocales(rows.next().cellIterator());
+            final List<Locale> locales = getLocales(rows.next().cellIterator());
 
             //
             while (rows.hasNext()) {
-                Row row = rows.next();
-                String path = row.getCell(0).getStringCellValue();
-                String key = row.getCell(1).getStringCellValue();
+                final Row row = rows.next();
+                final String path = row.getCell(0).getStringCellValue();
+                final String key = row.getCell(1).getStringCellValue();
                 for (int i = 0; i < locales.size(); i++) {
-                    Cell cell = row.getCell(i + 3);
+                    final Cell cell = row.getCell(i + 3);
                     if (cell != null) {
                         addMessage(path, locales.get(i), key, cell.getStringCellValue(), map);
                     }
                 }
             }
-        } catch (IOException e) {
+        } catch (final IOException e) {
             getLog().error("Error reading excel file", e);
         }
         return map;
@@ -100,18 +100,18 @@ public class GenerateXmlMojo extends AbstractWicketMessagesMojo {
      */
     private void addMessage(final String path, final Locale locale, final String key, final String value,
             final Map<PathAndLocale, Properties> map) {
-        Path filePath = buildFilePath(Paths.get(path), locale);
+        final Path filePath = buildFilePath(Paths.get(path), locale);
         if (!Files.exists(filePath)) {
             try {
                 Files.createFile(filePath);
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 getLog().error("Error creating xml file", e);
             }
         }
 
-        PathAndLocale pathAndKey = new PathAndLocale(filePath, locale);
+        final PathAndLocale pathAndKey = new PathAndLocale(filePath, locale);
         map.putIfAbsent(pathAndKey, new Properties());
-        Properties props = map.get(pathAndKey);
+        final Properties props = map.get(pathAndKey);
         props.put(key, value);
     }
 
@@ -129,7 +129,7 @@ public class GenerateXmlMojo extends AbstractWicketMessagesMojo {
         if (DEFAULT_LOCALE.equals(locale)) {
             return path;
         } else {
-            String fileName = FilenameUtils.getBaseName(FilenameUtils.getBaseName(path.getFileName().toString()));
+            final String fileName = FilenameUtils.getBaseName(FilenameUtils.getBaseName(path.getFileName().toString()));
             return Paths.get(path.getParent().toString(),
                     String.format("%s_%s%s", fileName, locale.toString(), fileExtension));
         }
@@ -143,7 +143,7 @@ public class GenerateXmlMojo extends AbstractWicketMessagesMojo {
      * @return the locales
      */
     private List<Locale> getLocales(final Iterator<Cell> cells) {
-        List<Locale> locales = new ArrayList<>();
+        final List<Locale> locales = new ArrayList<>();
         // ignore path, key and used column
         cells.next();
         cells.next();
@@ -164,7 +164,8 @@ public class GenerateXmlMojo extends AbstractWicketMessagesMojo {
         map.forEach((pal, props) -> {
             try {
                 if (append) {
-                    Properties existingProperties = new Properties();
+                    getLog().info("Append to existing files");
+                    final Properties existingProperties = new Properties();
                     existingProperties.load(Files.newInputStream(pal.getPath()));
                     existingProperties.putAll(props);
                     props.storeToXML(Files.newOutputStream(pal.getPath()), "", StandardCharsets.UTF_8.toString());
@@ -174,7 +175,7 @@ public class GenerateXmlMojo extends AbstractWicketMessagesMojo {
                 }
                 getLog().info(String.format("stored properties to %s", pal.getPath().toString()));
 
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 getLog().error("error while storing properties to xml", e);
             }
         });
