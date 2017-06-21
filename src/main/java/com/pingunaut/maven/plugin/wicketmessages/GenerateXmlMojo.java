@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -37,6 +38,8 @@ public class GenerateXmlMojo extends AbstractWicketMessagesMojo {
     @Parameter(defaultValue = "messages.xlsx", property = "inputFile", required = true)
     private String inputFile;
 
+    @Parameter(defaultValue = "false", property = "removeEmptyEntries", required = true)
+    private boolean removeEmptyEntries;
     /*
      * (non-Javadoc)
      *
@@ -165,11 +168,17 @@ public class GenerateXmlMojo extends AbstractWicketMessagesMojo {
             try {
                 if (append) {
                     getLog().info("Append to existing file");
-                    final Properties existingProperties = new Properties();
+                    Properties existingProperties = new Properties();
                     existingProperties.loadFromXML(Files.newInputStream(pal.getPath()));
                     existingProperties.putAll(props);
+                    if(removeEmptyEntries){
+                        existingProperties = getPropertiesWithoutEmptyEntries(existingProperties);
+                    }
                     existingProperties.storeToXML(Files.newOutputStream(pal.getPath()), "", StandardCharsets.UTF_8.toString());
                 } else {
+                    if(removeEmptyEntries){
+                        props = getPropertiesWithoutEmptyEntries(props);
+                    }
                     props.storeToXML(Files.newOutputStream(pal.getPath()), "", StandardCharsets.UTF_8.toString());
 
                 }
@@ -179,5 +188,21 @@ public class GenerateXmlMojo extends AbstractWicketMessagesMojo {
                 getLog().error("error while storing properties to xml", e);
             }
         });
+    }
+    
+    /**
+     * Gets the properties without empty entries.
+     *
+     * @param props the props
+     * @return the properties without empty entries
+     */
+    private Properties getPropertiesWithoutEmptyEntries(Properties props) {
+        Properties propsWithoutEmptyEntries = new Properties();
+        props.forEach((k,v)->{
+            if(StringUtils.isNotEmpty(String.valueOf(v))){
+                propsWithoutEmptyEntries.put(k, v);
+            }
+        });
+        return propsWithoutEmptyEntries;
     }
 }
